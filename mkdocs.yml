@@ -1,0 +1,11 @@
+site_name: Documentation for weather
+
+pages:
+  - Home: index.md
+  - Makrdown Example: markdown-example.md
+
+dev_addr: 0.0.0.0:8001
+
+markdown_extensions:
+  - extra
+  - admonition
