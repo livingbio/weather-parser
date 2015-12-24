@@ -27,9 +27,11 @@ class Command(BaseCommand):
         for x in airport_code_list_from_web:
             if ',' in x:
                 y = x.split(',')
+                y[0] = y[0].split(' (')[0]
                 try:
-                    airport_code_list[y[0]] = re.search(ur'\(?(\w+)\)', y[-1]).group(1)
+                    airport_code_list[y[0]].append(re.search(ur'\(?(\w+)\)', y[-1]).group(1))
                 except:
+                    airport_code_list[y[0]] = [re.search(ur'\(?(\w+)\)', y[-1]).group(1)]
                     print y
         city_list = []
         for x in xrange(0, 10):
