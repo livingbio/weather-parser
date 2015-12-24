@@ -1,22 +1,8 @@
 [![Build Status](https://travis-ci.org/livingbio/django-template.svg?branch=master)](https://travis-ci.org/livingbio/django-template)
 
-# Django Template for GliaCloud
-
-This is a django template for gliacloud
+# Weather Parser
 
 ## INSTALLATION & SETTINGS
-
-### Install Django
-
-To install django, type the following command
-
-    sudo pip install django
-
-### Create Django project from the template
-
-To create the project, run the following command and please replace your_project_name to what you like :
-
-    django-admin.py startproject --template=https://github.com/livingbio/django-template/archive/master.zip --extension=py,md,yml,ini your_project_name
 
 ### Setting Virtualenv
 
@@ -41,6 +27,10 @@ Install all dependencies:
 Settings are stored in environment variables via [django-environ](http://django-environ.readthedocs.org/en/latest/). The quickiest way to start is to rename `local.sample.env`
 
     cp weather/src/weather/settings/local.sample.env weather/src/weather/settings/local.env
+
+Then edit the SECRET_KEY in local.env file, replace `{{ secret_key }}` into any [Django Secret Key](http://www.miniwebtool.com/django-secret-key-generator/), for example:
+
+   SECRET_KEY=twvg)o_=u&@6^*cbi9nfswwh=(&hd$bhxh9iq&h-kn-pff0&&3
 
 Run migrations:
 

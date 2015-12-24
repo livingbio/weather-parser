@@ -43,3 +43,18 @@ Fabric==1.10.2
 # Mkdocs - Project documentation with Markdown.
 # http://www.mkdocs.org/
 mkdocs==0.14.0
+
+# django-jsonfield is a reusable Django field that allows you to store validated JSON in your model.
+# https://github.com/bradjasper/django-jsonfield/
+jsonfield
+
+# Beautiful Soup is a Python library for pulling data out of HTML and XML files.
+# http://www.crummy.com/software/BeautifulSoup/bs4/doc/
+beautifulsoup4
+
+# 
+requests
+
+# LatLon 1.0.2
+# Methods for representing geographic coordinates
+LatLon==1.0.2
