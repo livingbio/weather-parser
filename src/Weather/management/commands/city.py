@@ -18,11 +18,10 @@ class Command(BaseCommand):
         html2 = requests.request('GET', url2).content.decode('utf-8', 'ignore')
         body2 = BeautifulSoup(html2, "html.parser")
 
-        airport_code_list_from_web = body2.select('.t6')[0].parent.parent
-        airport_code_list_from_web = airport_code_list_from_web.text.split(
-            'International code list')[-1]
-        airport_code_list_from_web = airport_code_list_from_web.split(
-            '\n')
+        airport_code_list_from_web = body2.select('.t6')[0].parent.parent.text
+        # airport_code_list_from_web = airport_code_list_from_web.text.split(
+        #     'International code list')[-1]
+        airport_code_list_from_web = airport_code_list_from_web.split('\n')
         airport_code_list = {}
         for x in airport_code_list_from_web:
             if ',' in x:
@@ -31,8 +30,11 @@ class Command(BaseCommand):
                 try:
                     airport_code_list[y[0]].append(re.search(ur'\(?(\w+)\)', y[-1]).group(1))
                 except:
-                    airport_code_list[y[0]] = [re.search(ur'\(?(\w+)\)', y[-1]).group(1)]
                     print y
+                    try:
+                        airport_code_list[y[0]] = [re.search(ur'\(?(\w+)\)', y[-1]).group(1)]
+                    except:
+                        pass
         city_list = []
         for x in xrange(0, 10):
             url = 'http://www.tiptopglobe.com/biggest-cities-world?p=' + str(x)
@@ -81,6 +83,7 @@ class Command(BaseCommand):
         print len(city_list)
         print city_list[734]
         print city_list[142]
+        print len(airport_code_list)
         # pp.pprint(len(result_list))
         # for result in result_list:
 
