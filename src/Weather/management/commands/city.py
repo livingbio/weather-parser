@@ -63,7 +63,7 @@ class Command(BaseCommand):
                     try:
                         airport_code = airport_code_list[name]
                     except:
-                        import pdb; pdb.set_trace()
+                        # import pdb; pdb.set_trace()
                         airport_code = None
                     city_list.append({
                         'name': name,
