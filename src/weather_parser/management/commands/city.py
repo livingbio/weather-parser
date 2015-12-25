@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 from bs4 import BeautifulSoup
 from LatLon import Latitude, Longitude
-from Weather.models import City
+from weather_parser.models import City
 import requests
 import re
 

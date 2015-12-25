@@ -73,7 +73,7 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
     'django_extensions',
     'compressor',
-    'Weather',
+    'weather_parser',
 )
 
 LOCAL_APPS = (
