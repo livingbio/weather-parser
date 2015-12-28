@@ -1,20 +1,37 @@
-localrun=source localenv/bin/activate
+port = 8000
+IMG_NAME = weather
+MAKE_LOG_PATH = .make
+localrun=docker run --rm -i -t -p $(port):$(port) -v $(shell pwd):/work -w /work/src $(IMG_NAME) 
+vpath %.build $(MAKE_LOG_PATH)
+migration_files = $(shell find src -type f -name '*.py'|grep "migrations")
+model_files = $(shell find src -type f -name 'models.py')
+env_files = $(shell find env -type f -name '*')
 
-run: localenv src/db.sqlite3
-	$(localrun) && cd src && python manage.py runserver
+
+run:  db.build
+	$(localrun)  python manage.py runserver
 
 doc:
-	mkdocs serve
+	echo $(migrations) $(models)
 
-localenv: 
-	virtualenv --no-site-package localenv && $(localrun) && pip install -r requirements.txt 
-	cp src/Weather/settings/local.sample.env src/Weather/settings/local.env 
 
-src/db.sqlite3: localenv
-	$(localenv) && cd src && python manage.py startmigrations && python manage.py migrate
+image.build: $(env_files)
+	docker build  -t $(IMG_NAME) env
+	echo "" > $(MAKE_LOG_PATH)/$@
 
-test: localenv src/db.sqlite3
-	$(localrun) && cd src && python manage.py test
+db.build: image.build $(migration_files) $(model_files)
+	$(localrun)  python manage.py makemigrations ; $(localrun) python manage.py migrate 
+	echo "" > $(MAKE_LOG_PATH)/$@
 
-shell: localenv src/db.sqlite3
-	$(localrun) && cd src && python manage.py shell
+test: db.build
+	$(localrun) python manage.py test
+
+shell: db.build
+	$(localrun) /bin/bash
+
+manage: db.build
+	$(localrun) python manage.py $(args)
+
+clean: 
+	rm -rf src/db.sqlite3 .make
+

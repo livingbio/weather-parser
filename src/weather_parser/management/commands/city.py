@@ -2,9 +2,11 @@
 from django.core.management.base import BaseCommand
 from bs4 import BeautifulSoup
 from LatLon import Latitude, Longitude
-from weather_parser.models import City
+from weather_parser.models import City, AirPort
 import requests
 import re
+import csv
+from cStringIO import StringIO
 
 
 class Command(BaseCommand):
@@ -14,27 +16,16 @@ class Command(BaseCommand):
     #     parser.add_argument('id_or_url', nargs='?', type=str)
 
     def handle(self, *args, **options):
-        url2 = 'http://www.airportcodes.org/'
-        html2 = requests.request('GET', url2).content.decode('utf-8', 'ignore')
-        body2 = BeautifulSoup(html2, "html.parser")
+        airport_url = 'https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat'
+        content = requests.request('GET', airport_url).content.decode('utf-8', 'ignore')
+        fields = "airport_id,name,city_name,country_name,iata,icao,latitude,longitude,altitude,timezone,dst".split(',')
+        
+        reader = csv.DictReader(StringIO(content.encode('utf-8')), fieldnames=fields)
+        for info in reader:
+            del info[None]
+            AirPort.objects.create(**info)
 
-        airport_code_list_from_web = body2.select('.t6')[0].parent.parent.text
-        # airport_code_list_from_web = airport_code_list_from_web.text.split(
-        #     'International code list')[-1]
-        airport_code_list_from_web = airport_code_list_from_web.split('\n')
-        airport_code_list = {}
-        for x in airport_code_list_from_web:
-            if ',' in x:
-                y = x.split(',')
-                y[0] = y[0].split(' (')[0]
-                try:
-                    airport_code_list[y[0]].append(re.search(ur'\(?(\w+)\)', y[-1]).group(1))
-                except:
-                    print y
-                    try:
-                        airport_code_list[y[0]] = [re.search(ur'\(?(\w+)\)', y[-1]).group(1)]
-                    except:
-                        pass
+
         city_list = []
         for x in xrange(0, 10):
             url = 'http://www.tiptopglobe.com/biggest-cities-world?p=' + str(x)
@@ -46,6 +37,7 @@ class Command(BaseCommand):
             for city in city_list_from_web[1:]:
                 try:
                     name = city.select('td')[1].select('font')[0].text
+                    name = re.sub("\s*\(.*\)", "", name).strip()
                     population = int(city.select('td')[2].text.replace(' ', ''))
                     try:
                         altitude = int(city.select('td')[3].text.split(' ')[0])
@@ -64,11 +56,8 @@ class Command(BaseCommand):
                         degree=int(longitude[0]),
                         minute=int(longitude[1]),
                         second=float(longitude[2])))
-                    try:
-                        airport_code = airport_code_list[name]
-                    except:
-                        # import pdb; pdb.set_trace()
-                        airport_code = None
+
+                    # import pdb; pdb.set_trace()
                     city_list.append({
                         'name': name,
                         'population': population,
@@ -76,14 +65,19 @@ class Command(BaseCommand):
                         'country': country,
                         'latitude': latitude,
                         'longitude': longitude,
-                        'airport_code': airport_code
                         })
                 except:
                     pass
         print len(city_list)
         print city_list[734]
         print city_list[142]
-        print len(airport_code_list)
+        for city in city_list:
+            city = City.objects.create(**city)
+            city_airports = AirPort.objects.filter(city_name=city.name)
+            city.airports = city_airports
+            city.save()
+
+
         # pp.pprint(len(result_list))
         # for result in result_list:
 
