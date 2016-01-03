@@ -27,12 +27,12 @@ class Command(BaseCommand):
                 assert airport.iata.strip() 
 
                 print airport.iata, 'iata'
-                airport.content = requests.get("http://www.wunderground.com/history/airport/{}/2015/1/1/CustomHistory.html?dayend=27&monthend=12&yearend=2015&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1".format(airport.iata)).content.replace("<br />", "").strip()
+                airport.content = requests.get("http://www.wunderground.com/history/airport/{}/2015/1/1/CustomHistory.html?dayend=30&monthend=1&yearend=2016&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1".format(airport.iata)).content.replace("<br />", "").strip()
             except:
                 try:
                     assert airport.icao.strip()
                     print airport.icao, 'icao'
-                    airport.content = requests.get("http://www.wunderground.com/history/airport/{}/2015/1/1/CustomHistory.html?dayend=27&monthend=12&yearend=2015&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1".format(airport.icao)).content.replace("<br />", "").strip()
+                    airport.content = requests.get("http://www.wunderground.com/history/airport/{}/2015/1/1/CustomHistory.html?dayend=30&monthend=1&yearend=2016&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1".format(airport.icao)).content.replace("<br />", "").strip()
                 except Exception as e:
                     pass
             finally:

@@ -46,7 +46,6 @@ class Command(BaseCommand):
             for airport in airports:
                 print airport.name.encode('utf-8')
                 reader = csv.DictReader(StringIO(airport.content))
-
                 time_field = re.match("^\w+", airport.content).group()
                 data = airport.__dict__
                 del data['_state']
