@@ -9,7 +9,7 @@ env_files = $(shell find env -type f -name '*')
 
 
 run:  db.build
-	$(localrun)  python manage.py runserver
+	$(localrun)  python manage.py runserver 0.0.0.0:8000
 
 doc:
 	echo $(migrations) $(models)

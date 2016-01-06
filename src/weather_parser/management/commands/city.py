@@ -2,30 +2,15 @@
 from django.core.management.base import BaseCommand
 from bs4 import BeautifulSoup
 from LatLon import Latitude, Longitude
-from weather_parser.models import City, AirPort
+from weather_parser.models import City
 import requests
 import re
-import csv
-from cStringIO import StringIO
 
 
 class Command(BaseCommand):
     help = ''
 
-    # def add_arguments(self, parser):
-    #     parser.add_argument('id_or_url', nargs='?', type=str)
-
     def handle(self, *args, **options):
-        airport_url = 'https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat'
-        content = requests.request('GET', airport_url).content.decode('utf-8', 'ignore')
-        fields = "airport_id,name,city_name,country_name,iata,icao,latitude,longitude,altitude,timezone,dst".split(',')
-        
-        reader = csv.DictReader(StringIO(content.encode('utf-8')), fieldnames=fields)
-        for info in reader:
-            del info[None]
-            AirPort.objects.create(**info)
-
-
         city_list = []
         for x in xrange(0, 10):
             url = 'http://www.tiptopglobe.com/biggest-cities-world?p=' + str(x)
@@ -56,8 +41,6 @@ class Command(BaseCommand):
                         degree=int(longitude[0]),
                         minute=int(longitude[1]),
                         second=float(longitude[2])))
-
-                    # import pdb; pdb.set_trace()
                     city_list.append({
                         'name': name,
                         'population': population,
@@ -68,42 +51,6 @@ class Command(BaseCommand):
                         })
                 except:
                     pass
-        print len(city_list)
-        print city_list[734]
-        print city_list[142]
         for city in city_list:
             city = City.objects.create(**city)
-            city_airports = AirPort.objects.filter(city_name=city.name)
-            city.airports = city_airports
             city.save()
-
-
-        # pp.pprint(len(result_list))
-        # for result in result_list:
-
-        #     city, is_create = City.objects.get_or_create(
-        #         name=result['name'],
-        #         default=result
-        #     )
-
-        #     for k in result:
-        #         if k == 'comment_list':
-        #             continue
-        #         if not result[k] is None:
-        #             setattr(review, k, result[k])
-        #     for cmt in result['comment_list']:
-        #         try:
-        #             Comment.objects.create(
-        #                 review=review,
-        #                 commentator=cmt['commentator'],
-        #                 like=cmt['like'],
-        #                 content=cmt['content'],
-        #                 comment_time=cmt['comment_time']
-        #             )
-
-        #             #         pass
-        #         except Exception as e:
-        #             print e, review.id
-        #             pass
-        #     review.status = "DONE"
-        #     review.save()
