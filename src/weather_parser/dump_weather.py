@@ -15,7 +15,7 @@ def dump_weather(weather_data):
             try:
                 time_field = re.match("^\w+", airport.content).group()
             except:
-                pass
+                continue
             data = airport.__dict__
             del data['_state']
             del data['content']

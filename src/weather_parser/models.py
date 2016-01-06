@@ -4,6 +4,7 @@ from django.db import models
 from jsonfield import JSONField
 from datetime import timedelta
 import requests
+import re
 import csv
 from cStringIO import StringIO
 
@@ -32,26 +33,30 @@ class AirPort(models.Model):
             ed: datetime.Date object ## start date
         """
         start = st.strftime("%Y/%m/%d")
-        url = "http://www.wunderground.com/history/airport/{}/{}/CustomHistory.html?".format({}, start)
-        url += "dayend={}&monthend={}&yearend={}".format(ed.strftime("%d"), ed.strftime("%m"), ed.strftime("%Y"))
+        url = "http://www.wunderground.com/history/airport/{0}/{1}/CustomHistory.html?".format({}, start)
+        url += "dayend={0}&monthend={1}&yearend={2}".format(ed.strftime("%d"), ed.strftime("%m"), ed.strftime("%Y"))
         url += "&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1"
+        # import pdb; pdb.set_trace()
         try:
-            url.format(self.iata)
-            result = requests.get(url).content.replace("<br />", "").strip()
+            url_try = url.format(self.iata)
+            result = requests.get(url_try).content.replace("<br />", "").strip()
+            time_field = re.match("^\w+", result).group()
         except:
             try:
-                url.format(self.icao)
-                result = requests.get(url).content.replace("<br />", "").strip()
+                url_try = url.format(self.icao)
+                result = requests.get(url_try).content.replace("<br />", "").strip()
+                time_field = re.match("^\w+", result).group()
             except:
-                pass
+                result = ''
+        result = self.city_name + ': \n' + result
         return result
 
     def get_date_weather(self, date):
         datedelta = timedelta(days=1)
         date2 = date + datedelta
         result = self.get_weather(date, date2)
-        read = csv.DictReader(StringIO(result))
-        return read[0]
+        result = "".join(result.split('\n')[:-1])
+        return result
 
 
 class City(models.Model):

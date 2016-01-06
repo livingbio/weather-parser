@@ -1,10 +1,12 @@
 # -*- encoding=utf8 -*-
 from .parser import Parser
-from huey.djhuey import crontab, db_periodic_task, db_task, periodic_task
-# import re
-from weather_parser.models import AirPort
-import csv
+from huey.djhuey import crontab, db_periodic_task, db_task  # , periodic_task
+from weather_parser.models import City, AirPort
+from bs4 import BeautifulSoup
+from LatLon import Latitude, Longitude
 from cStringIO import StringIO
+import re
+import csv
 import requests
 
 
@@ -38,6 +40,7 @@ def scan_airport():
     for info in reader:
         del info[None]
         AirPort.objects.get_or_create(**info)
+
 
 @db_periodic_task(crontab(hour='24'))
 def update_city():
