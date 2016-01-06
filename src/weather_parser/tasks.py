@@ -25,11 +25,6 @@ def _iter(qs, chunk_size=500):
             yield row
 
 
-@db_task(retries=3)
-def parse_news(id, replace=False):
-    print 1
-
-
 @db_periodic_task(crontab(hour='24'))
 def scan_airport():
     airport_url = 'https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat'
