@@ -1,6 +1,6 @@
 # -*- encoding=utf8 -*-
 from .parser import Parser
-from huey.djhuey import crontab, db_periodic_task, db_task  # , periodic_task
+from huey.djhuey import crontab, db_periodic_task # , db_task, periodic_task
 from weather_parser.models import City, AirPort
 from bs4 import BeautifulSoup
 from LatLon import Latitude, Longitude

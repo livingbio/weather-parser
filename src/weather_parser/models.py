@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from jsonfield import JSONField
+from datetime import datetime
 from datetime import timedelta
 import requests
 import re
@@ -13,18 +14,18 @@ from cStringIO import StringIO
 
 class AirPort(models.Model):
 
-    airport_id = models.CharField(max_length=1024, null=True)
-    city_name = models.CharField(max_length=1024, null=True)
-    country_name = models.CharField(max_length=1024, null=True)
-    latitude = models.FloatField(null=True)
-    longitude = models.FloatField(null=True)
-    timezone = models.FloatField(null=True)
-    dst = models.CharField(max_length=1024, null=True)
-    name = models.CharField(max_length=1024, null=True)
-    altitude = models.FloatField(null=True)
-    iata = models.CharField(max_length=1024, null=True)
-    icao = models.CharField(max_length=1024, null=True)
-    content = models.TextField(null=True)
+    airport_id = models.CharField(max_length=1024, blank=True)
+    city_name = models.CharField(max_length=1024, blank=True)
+    country_name = models.CharField(max_length=1024, blank=True)
+    latitude = models.FloatField(blank=True)
+    longitude = models.FloatField(blank=True)
+    timezone = models.FloatField(blank=True)
+    dst = models.CharField(max_length=1024, blank=True)
+    name = models.CharField(max_length=1024, blank=True)
+    altitude = models.FloatField(blank=True)
+    iata = models.CharField(max_length=1024, blank=True)
+    icao = models.CharField(max_length=1024, blank=True)
+    content = models.TextField(blank=True)
 
     def get_weather(self, st, ed):
         """
@@ -32,23 +33,33 @@ class AirPort(models.Model):
             st: datetime.Date object ## start date
             ed: datetime.Date object ## start date
         """
-        start = st.strftime("%Y/%m/%d")
-        url = "http://www.wunderground.com/history/airport/{0}/{1}/CustomHistory.html?".format({}, start)
-        url += "dayend={0}&monthend={1}&yearend={2}".format(ed.strftime("%d"), ed.strftime("%m"), ed.strftime("%Y"))
-        url += "&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1"
-        # import pdb; pdb.set_trace()
-        try:
-            url_try = url.format(self.iata)
-            result = requests.get(url_try).content.replace("<br />", "").strip()
-            time_field = re.match("^\w+", result).group()
-        except:
+        if st.strftime("%Y") > ed.strftime("%Y"):
+            st, ed = ed, st
+        result = ""
+        while st.strftime("%Y") <= ed.strftime("%Y"):
+            start = st.strftime("%Y/%m/%d")
+            url = "http://www.wunderground.com/history/airport/{0}/{1}/CustomHistory.html?".format({}, start)
+            if st.strftime("%Y") == ed.strftime("%Y"):
+                url += "dayend={0}&monthend={1}&yearend={2}".format(ed.strftime("%d"), ed.strftime("%m"), ed.strftime("%Y"))
+            else:
+                url += "dayend={0}&monthend={1}&yearend={2}".format("31", "12", st.strftime("%Y"))
+            url += "&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1"
+            # import pdb; pdb.set_trace()
             try:
-                url_try = url.format(self.icao)
-                result = requests.get(url_try).content.replace("<br />", "").strip()
-                time_field = re.match("^\w+", result).group()
+                url_try = url.format(self.iata)
+                data = requests.get(url_try).content.replace("<br />", "").strip()
             except:
-                result = ''
-        result = self.city_name + ': \n' + result
+                try:
+                    url_try = url.format(self.icao)
+                    data = requests.get(url_try).content.replace("<br />", "").strip()
+                except:
+                    data = ''
+            if len(data.split('\n')[1:]) != 0:
+                result_head = data.split('\n')[0]
+                result += data.replace(result_head,"")
+            start = str(int(st.strftime("%Y")) + 1) + "/1/1"
+            st = datetime.strptime(start, '%Y/%m/%d')
+        result = result_head + result
         return result
 
     def get_date_weather(self, date):

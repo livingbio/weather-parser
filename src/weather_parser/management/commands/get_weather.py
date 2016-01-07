@@ -2,11 +2,6 @@
 from django.core.management.base import BaseCommand
 from weather_parser.models import AirPort
 from datetime import datetime
-import re
-import csv
-from cStringIO import StringIO
-import time
-import json
 
 
 class Command(BaseCommand):
