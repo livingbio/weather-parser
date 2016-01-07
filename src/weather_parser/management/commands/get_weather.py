@@ -27,4 +27,5 @@ class Command(BaseCommand):
             if len(result) == 0:
                 continue
             else:
-                return result
+                break
+        print result

@@ -34,8 +34,9 @@ class AirPort(models.Model):
             ed: datetime.Date object ## start date
         """
         if st.strftime("%Y") > ed.strftime("%Y"):
+            print "Found end date before start date"
             st, ed = ed, st
-        result = ""
+        result = []
         while st.strftime("%Y") <= ed.strftime("%Y"):
             start = st.strftime("%Y/%m/%d")
             url = "http://www.wunderground.com/history/airport/{0}/{1}/CustomHistory.html?".format({}, start)
@@ -44,7 +45,6 @@ class AirPort(models.Model):
             else:
                 url += "dayend={0}&monthend={1}&yearend={2}".format("31", "12", st.strftime("%Y"))
             url += "&req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=&format=1"
-            # import pdb; pdb.set_trace()
             try:
                 url_try = url.format(self.iata)
                 data = requests.get(url_try).content.replace("<br />", "").strip()
@@ -55,11 +55,16 @@ class AirPort(models.Model):
                 except:
                     data = ''
             if len(data.split('\n')[1:]) != 0:
-                result_head = data.split('\n')[0]
-                result += data.replace(result_head,"")
+                result_key = data.split('\n')[0].split(',')
+                result_key[0] = 'Date'
+                for weather_data in data.split('\n')[1:]:
+                    weather_data = weather_data.split(',')
+                    day = {}
+                    for x in xrange(0, len(result_key)):
+                        day[result_key[x]] = weather_data[x]
+                    result.append(day)
             start = str(int(st.strftime("%Y")) + 1) + "/1/1"
             st = datetime.strptime(start, '%Y/%m/%d')
-        result = result_head + result
         return result
 
     def get_date_weather(self, date):
